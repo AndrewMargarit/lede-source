@@ -1,4 +1,4 @@
-This is the buildsystem for the LEDE Linux distribution.
+ This is the buildsystem for the LEDE Linux distribution.
 
 Please use "make menuconfig" to choose your preferred
 configuration for the toolchain and firmware.
