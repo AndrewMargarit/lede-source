@@ -8,9 +8,9 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ath10k-firmware
-PKG_SOURCE_DATE:=2017-01-11
-PKG_SOURCE_VERSION:=ab432c60437931a165f0aff1a6e3371f358b75dd
-PKG_MIRROR_HASH:=e3188ecd4d7470d3cdde89fefa6258f9ec4f404b23558d1474e5014679b28101
+PKG_SOURCE_DATE:=2017-03-29
+PKG_SOURCE_VERSION:=956e2609b7e42c8c710bba10ef925a5be1be5137
+PKG_MIRROR_HASH:=25f724ff38c830281b3efba4a4ddffaae0c4bd8fea0f4c1061591229ff05535b
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
@@ -63,7 +63,6 @@ $(eval $(call Download,ath10k-qca9887-board))
 
 define Package/ath10k-firmware-qca988x
 $(Package/ath10k-firmware-default)
-  DEFAULT:=PACKAGE_kmod-ath10k
   TITLE:=ath10k firmware for QCA988x devices
   SECTION:=firmware
   CATEGORY:=Firmware
@@ -186,6 +185,13 @@ $(Package/ath10k-firmware-default)
   CATEGORY:=Firmware
 endef
 
+define Package/ath10k-firmware-qca4019
+$(Package/ath10k-firmware-default)
+  TITLE:=ath10k firmware for IPQ/QCA4019 devices
+  SECTION:=firmware
+  CATEGORY:=Firmware
+endef
+
 define Package/ath10k-firmware-qca6174
 $(Package/ath10k-firmware-default)
   TITLE:=ath10k firmware for QCA6174 devices
@@ -204,31 +210,18 @@ define Download/qca99x0-board
 endef
 $(eval $(call Download,qca99x0-board))
 
-QCA9984_BOARD_REV:=719c0127e52bd70559e71b85ab0331790e1bf66c
-QCA9984_BOARD_FILE:=board-2.bin
-QCA9984_BOARD_FILE_DL:=$(QCA9984_BOARD_FILE).$(QCA9984_BOARD_REV)
-QCA9984_FIRMWARE_REV:=d697906c66ccfbf9dfd77071b154394006e3371a
-QCA9984_FIRMWARE_FILE:=firmware-5.bin_10.4-3.4-00068
-QCA9984_FIRMWARE_FILE_DL:=$(QCA9984_FIRMWARE_FILE).$(QCA9984_FIRMWARE_REV)
-
-define Download/ath10k-qca9984-board
-  URL:=https://source.codeaurora.org/quic/qsdk/oss/firmware/ath10k-firmware/plain/ath10k/QCA9984/hw1.0/
-  URL_FILE:=$(QCA9984_BOARD_FILE)?id=$(QCA9984_BOARD_REV)
-  FILE:=$(QCA9984_BOARD_FILE_DL)
-  HASH:=e968b214fd76d5b7859f71841ce40fbd5f47336c3ccbaf95e23f902f5e569aef
-endef
-$(eval $(call Download,ath10k-qca9984-board))
-
-define Download/ath10k-qca9984-firmware
-  URL:=https://source.codeaurora.org/quic/qsdk/oss/firmware/ath10k-firmware/plain/ath10k/QCA9984/hw1.0/
-  URL_FILE:=$(QCA9984_FIRMWARE_FILE)?id=$(QCA9984_FIRMWARE_REV)
-  FILE:=$(QCA9984_FIRMWARE_FILE_DL)
-  HASH:=47616657bbfda217b82aacde51076f768f0aa38493decadd7f339d2d040c53fc
-endef
-$(eval $(call Download,ath10k-qca9984-firmware))
-
 define Build/Compile
 
+endef
+
+define Package/ath10k-firmware-qca4019/install
+	$(INSTALL_DIR) $(1)/lib/firmware/ath10k/QCA4019/hw1.0
+	$(INSTALL_DATA) \
+		$(PKG_BUILD_DIR)/QCA4019/hw1.0/board-2.bin \
+		$(1)/lib/firmware/ath10k/QCA4019/hw1.0/
+	$(INSTALL_DATA) \
+		$(PKG_BUILD_DIR)/QCA4019/hw1.0/3.2.1/firmware-5.bin_10.4-3.2.1-00053 \
+		$(1)/lib/firmware/ath10k/QCA4019/hw1.0/firmware-5.bin
 endef
 
 define Package/ath10k-firmware-qca9887/install
@@ -247,7 +240,7 @@ define Package/ath10k-firmware-qca988x/install
 		$(PKG_BUILD_DIR)/QCA988X/hw2.0/board.bin \
 		$(1)/lib/firmware/ath10k/QCA988X/hw2.0/
 	$(INSTALL_DATA) \
-		$(PKG_BUILD_DIR)/QCA988X/hw2.0/10.2.4-1.0/firmware-5.bin_10.2.4-1.0-00016 \
+		$(PKG_BUILD_DIR)/QCA988X/hw2.0/10.2.4-1.0/firmware-5.bin_10.2.4-1.0-00029 \
 		$(1)/lib/firmware/ath10k/QCA988X/hw2.0/firmware-5.bin
 endef
 
@@ -308,10 +301,10 @@ define Package/ath10k-firmware-qca9984/install
 		../../cal-pci-0000:01:00.0.bin \
 		$(1)/lib/firmware/ath10k/QCA9984/hw1.0/board.bin
 	$(INSTALL_DATA) \
-		$(DL_DIR)/$(QCA9984_BOARD_FILE_DL) \
+		$(PKG_BUILD_DIR)/QCA9984/hw1.0/board-2.bin \
 		$(1)/lib/firmware/ath10k/QCA9984/hw1.0/board-2.bin
 	$(INSTALL_DATA) \
-		$(DL_DIR)/$(QCA9984_FIRMWARE_FILE_DL) \
+		$(PKG_BUILD_DIR)/QCA9984/hw1.0/3.4/firmware-5.bin_10.4-3.4-00082 \
 		$(1)/lib/firmware/ath10k/QCA9984/hw1.0/firmware-5.bin
 endef
 
@@ -333,6 +326,7 @@ $(eval $(call BuildPackage,ath10k-firmware-qca988x))
 $(eval $(call BuildPackage,ath10k-firmware-qca99x0))
 $(eval $(call BuildPackage,ath10k-firmware-qca6174))
 $(eval $(call BuildPackage,ath10k-firmware-qca9984))
+$(eval $(call BuildPackage,ath10k-firmware-qca4019))
 
 $(eval $(call BuildPackage,ath10k-firmware-qca9887-ct))
 $(eval $(call BuildPackage,ath10k-firmware-qca988x-ct))

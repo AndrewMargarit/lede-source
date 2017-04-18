@@ -24,6 +24,9 @@ export REVISION
 export SOURCE_DATE_EPOCH
 export GIT_CONFIG_PARAMETERS='core.autocrlf=false'
 export MAKE_JOBSERVER=$(filter --jobserver%,$(MAKEFLAGS))
+export GNU_HOST_NAME:=$(shell $(TOPDIR)/scripts/config.guess)
+export HOST_OS:=$(shell uname)
+export HOST_ARCH:=$(shell uname -m)
 
 # prevent perforce from messing with the patch utility
 unexport P4PORT P4USER P4CONFIG P4CLIENT
@@ -78,7 +81,7 @@ _ignore = $(foreach p,$(IGNORE_PACKAGES),--ignore $(p))
 prepare-tmpinfo: FORCE
 	@+$(MAKE) -r -s staging_dir/host/.prereq-build $(PREP_MK)
 	mkdir -p tmp/info
-	$(_SINGLE)$(NO_TRACE_MAKE) -j1 -r -s -f include/scan.mk SCAN_TARGET="packageinfo" SCAN_DIR="package" SCAN_NAME="package" SCAN_DEPS="$(TOPDIR)/include/package*.mk $(TOPDIR)/overlay/*/*.mk" SCAN_DEPTH=5 SCAN_EXTRA=""
+	$(_SINGLE)$(NO_TRACE_MAKE) -j1 -r -s -f include/scan.mk SCAN_TARGET="packageinfo" SCAN_DIR="package" SCAN_NAME="package" SCAN_DEPS="$(TOPDIR)/include/package*.mk" SCAN_DEPTH=5 SCAN_EXTRA=""
 	$(_SINGLE)$(NO_TRACE_MAKE) -j1 -r -s -f include/scan.mk SCAN_TARGET="targetinfo" SCAN_DIR="target/linux" SCAN_NAME="target" SCAN_DEPS="image/Makefile profiles/*.mk $(TOPDIR)/include/kernel*.mk $(TOPDIR)/include/target.mk" SCAN_DEPTH=2 SCAN_EXTRA="" SCAN_MAKEOPTS="TARGET_BUILD=1"
 	for type in package target; do \
 		f=tmp/.$${type}info; t=tmp/.config-$${type}.in; \
@@ -132,7 +135,7 @@ prepare_kernel_conf: .config FORCE
 
 ifeq ($(wildcard staging_dir/host/bin/quilt),)
   prepare_kernel_conf:
-	@+$(SUBMAKE) -r tools/quilt/install
+	@+$(SUBMAKE) -r tools/quilt/compile
 else
   prepare_kernel_conf: ;
 endif
@@ -148,7 +151,6 @@ kernel_nconfig: prepare_kernel_conf
 
 staging_dir/host/.prereq-build: include/prereq-build.mk
 	mkdir -p tmp
-	rm -f tmp/.host.mk
 	@$(_SINGLE)$(NO_TRACE_MAKE) -j1 -r -s -f $(TOPDIR)/include/prereq-build.mk prereq 2>/dev/null || { \
 		echo "Prerequisite check failed. Use FORCE=1 to override."; \
 		false; \

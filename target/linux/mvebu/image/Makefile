@@ -114,6 +114,7 @@ define Device/linksys-wrt3200acm
   $(call Device/linksys,WRT3200ACM (Rango))
   $(Device/armada-385-linksys)
   DEVICE_DTS := armada-385-linksys-rango
+  DEVICE_PACKAGES += kmod-mwifiex-sdio
 endef
 TARGET_DEVICES += linksys-wrt3200acm
 
@@ -176,7 +177,7 @@ define Device/armada-388-clearfog
   DEVICE_TITLE := SolidRun ClearFog
   DEVICE_PACKAGES := mkf2fs e2fsprogs swconfig kmod-fs-vfat kmod-nls-cp437 kmod-nls-iso8859-1
   IMAGES := sdcard.img.gz
-  IMAGE/sdcard.img.gz := boot-scr | boot-img | sdcard-img | gzip
+  IMAGE/sdcard.img.gz := boot-scr | boot-img | sdcard-img | gzip | append-metadata
   IMAGE_NAME = $$(IMAGE_PREFIX)-$$(2)
 endef
 TARGET_DEVICES += armada-388-clearfog

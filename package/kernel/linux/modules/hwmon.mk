@@ -93,6 +93,21 @@ endef
 $(eval $(call KernelPackage,hwmon-ina209))
 
 
+define KernelPackage/hwmon-nct6775
+  TITLE:=NCT6106D/6775F/6776F/6779D/6791D/6792D/6793D and compatibles monitoring support
+  KCONFIG:=CONFIG_SENSORS_NCT6775
+  FILES:=$(LINUX_DIR)/drivers/hwmon/nct6775.ko
+  AUTOLOAD:=$(call AutoProbe,nct6775)
+  $(call AddDepends/hwmon,@PCI_SUPPORT @TARGET_x86 +kmod-hwmon-vid)
+endef
+
+define KernelPackage/hwmon-nct6775/description
+ Kernel module for NCT6106D/6775F/6776F/6779D/6791D/6792D/6793D thermal monitor chip
+endef
+
+$(eval $(call KernelPackage,hwmon-nct6775))
+
+
 define KernelPackage/hwmon-ina2xx
   TITLE:=INA2XX monitoring support
   KCONFIG:=CONFIG_SENSORS_INA2XX
@@ -386,19 +401,3 @@ define KernelPackage/hwmon-pwmfan/description
 endef
 
 $(eval $(call KernelPackage,hwmon-pwmfan))
-
-
-define KernelPackage/hwmon-k10temp
-  TITLE:=AMD Family 10h+ temperature sensor
-  KCONFIG:=CONFIG_SENSORS_K10TEMP
-  FILES:=$(LINUX_DIR)/drivers/hwmon/k10temp.ko
-  AUTOLOAD:=$(call AutoLoad,60,k10temp)
-  $(call AddDepends/hwmon,@PCI_SUPPORT @TARGET_x86)
-endef
-
-define KernelPackage/hwmon-k10temp/description
-  Thermal sensor support for AMD 10h, 11h, 12h (Llano), 14h (Brazos),
-  15h (Bulldozer/Trinity/Kaveri) and 16h (Kabini/Mullins) CPUs
-endef
-
-$(eval $(call KernelPackage,hwmon-k10temp))

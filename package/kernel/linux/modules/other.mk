@@ -349,6 +349,7 @@ $(eval $(call KernelPackage,lp))
 define KernelPackage/mmc
   SUBMENU:=$(OTHER_MENU)
   TITLE:=MMC/SD Card Support
+  DEPENDS:=@!TARGET_uml
   KCONFIG:= \
 	CONFIG_MMC \
 	CONFIG_MMC_BLOCK \
@@ -954,3 +955,82 @@ define KernelPackage/bmp085-spi/description
 endef
 
 $(eval $(call KernelPackage,bmp085-spi))
+
+define KernelPackage/tpm
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=TPM Hardware Support
+  KCONFIG:= CONFIG_TCG_TPM
+  FILES:= $(LINUX_DIR)/drivers/char/tpm/tpm.ko
+  AUTOLOAD:=$(call AutoLoad,10,tpm,1)
+endef
+
+define KernelPackage/tpm/description
+	This enables TPM Hardware Support.
+endef
+
+$(eval $(call KernelPackage,tpm))
+
+define KernelPackage/tpm-tis
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=TPM TIS 1.2 Interface / TPM 2.0 FIFO Interface
+	DEPENDS:= @TARGET_x86 +kmod-tpm
+  KCONFIG:= CONFIG_TCG_TIS
+  FILES:= \
+	$(LINUX_DIR)/drivers/char/tpm/tpm_tis.ko \
+	$(LINUX_DIR)/drivers/char/tpm/tpm_tis_core.ko
+  AUTOLOAD:=$(call AutoLoad,20,tpm_tis,1)
+endef
+
+define KernelPackage/tpm-tis/description
+	If you have a TPM security chip that is compliant with the
+	TCG TIS 1.2 TPM specification (TPM1.2) or the TCG PTP FIFO
+	specification (TPM2.0) say Yes and it will be accessible from
+	within Linux.
+endef
+
+$(eval $(call KernelPackage,tpm-tis))
+
+define KernelPackage/tpm-i2c-atmel
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=TPM I2C Atmel Support
+  DEPENDS:= +kmod-tpm +kmod-i2c-core
+  KCONFIG:= CONFIG_TCG_TIS_I2C_ATMEL
+  FILES:= $(LINUX_DIR)/drivers/char/tpm/tpm_i2c_atmel.ko
+  AUTOLOAD:=$(call AutoLoad,40,tpm_i2c_atmel,1)
+endef
+
+define KernelPackage/tpm-i2c-atmel/description
+	This enables the TPM Interface Specification 1.2 Interface (I2C - Atmel)
+endef
+
+$(eval $(call KernelPackage,tpm-i2c-atmel))
+
+define KernelPackage/tpm-i2c-infineon
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:= TPM I2C Infineon driver
+  DEPENDS:= +kmod-tpm +kmod-i2c-core
+  KCONFIG:= CONFIG_TCG_TIS_I2C_INFINEON
+  FILES:= $(LINUX_DIR)/drivers/char/tpm/tpm_i2c_infineon.ko
+  AUTOLOAD:= $(call AutoLoad,40,tpm_i2c_infineon,1)
+endef
+
+define KernelPackage/tpm-i2c-infineon/description
+	This enables the TPM Interface Specification 1.2 Interface (I2C - Infineon)
+endef
+
+$(eval $(call KernelPackage,tpm-i2c-infineon))
+
+
+define KernelPackage/w83627hf-wdt
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=Winbond 83627HF Watchdog Timer
+  KCONFIG:=CONFIG_W83627HF_WDT
+  FILES:=$(LINUX_DIR)/drivers/$(WATCHDOG_DIR)/w83627hf_wdt.ko
+  AUTOLOAD:=$(call AutoLoad,50,w83627hf-wdt,1)
+endef
+
+define KernelPackage/w83627hf-wdt/description
+  Kernel module for Winbond 83627HF Watchdog Timer
+endef
+
+$(eval $(call KernelPackage,w83627hf-wdt))

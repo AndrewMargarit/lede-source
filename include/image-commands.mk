@@ -8,7 +8,7 @@ define Build/uImage
 		-O linux -T kernel \
 		-C $(1) -a $(KERNEL_LOADADDR) -e $(if $(KERNEL_ENTRY),$(KERNEL_ENTRY),$(KERNEL_LOADADDR)) \
 		-n '$(if $(UIMAGE_NAME),$(UIMAGE_NAME),$(call toupper,$(LINUX_KARCH)) LEDE Linux-$(LINUX_VERSION))' -d $@ $@.new
-	@mv $@.new $@
+	mv $@.new $@
 endef
 
 define Build/buffalo-enc
@@ -49,7 +49,7 @@ define Build/netgear-chk
 		-o $@.new \
 		-k $@ \
 		-b $(NETGEAR_BOARD_ID) \
-		-r $(NETGEAR_REGION)
+		$(if $(NETGEAR_REGION),-r $(NETGEAR_REGION),)
 	mv $@.new $@
 endef
 
@@ -60,6 +60,18 @@ define Build/netgear-dni
 		-r "$(1)" \
 		-i $@ -o $@.new
 	mv $@.new $@
+endef
+
+# append a fake/empty rootfs uImage header, to fool the bootloaders
+# rootfs integrity check
+define Build/append-uImage-fakeroot-hdr
+	rm -f $@.fakeroot
+	$(STAGING_DIR_HOST)/bin/mkimage \
+		-A $(LINUX_KARCH) -O linux -T filesystem -C none \
+		-n '$(call toupper,$(LINUX_KARCH)) LEDE fakeroot' \
+		-s \
+		$@.fakeroot
+	cat $@.fakeroot >> $@
 endef
 
 define Build/tplink-safeloader
@@ -141,10 +153,6 @@ endef
 
 define Build/append-rootfs
 	dd if=$(IMAGE_ROOTFS) >> $@
-endef
-
-define Build/append-file
-	cat "$(1)" >> "$@"
 endef
 
 define Build/append-ubi
